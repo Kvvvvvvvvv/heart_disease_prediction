@@ -1,0 +1,7 @@
+{
+  "roc_auc": 0.9101731601731601,
+  "test_accuracy": 0.8360655737704918,
+  "n_features": 13,
+  "n_train_samples": 242,
+  "n_test_samples": 61
+}
