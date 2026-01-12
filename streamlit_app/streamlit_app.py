@@ -415,7 +415,7 @@ with col1:
     sex = st.selectbox("⚥ Sex", options=[("Female", 0), ("Male", 1)], 
                       index=default_values.get('sex', 0),
                       format_func=lambda x: x[0],
-                      help="Biological sex of the patient")
+                      help="Biological sex of the patient")[1]
     cp = st.selectbox("💔 Chest Pain Type", 
                       options=[("Typical Angina", 0), ("Atypical Angina", 1), 
                               ("Non-anginal Pain", 2), ("Asymptomatic", 3)],
