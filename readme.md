@@ -246,6 +246,21 @@ For production deployments, consider:
 4. Securing the application
 5. Monitoring and alerting
 
+## 🌐 Streamlit Sharing Deployment
+
+The project includes a Streamlit-ready version for easy deployment on Streamlit Sharing:
+
+1. The `streamlit_app/` directory contains a simplified version of the app that's optimized for Streamlit Sharing
+2. Copy the model files (`heart_disease_model.pkl`, `feature_names.json`) to your repository
+3. Deploy directly to Streamlit Sharing using the `streamlit_app/streamlit_app.py` file
+4. The app will automatically locate model files in the repository
+
+To deploy to Streamlit Sharing:
+1. Fork this repository
+2. Ensure model files are in the repository
+3. Connect to Streamlit Sharing and point to `streamlit_app/streamlit_app.py`
+4. The app will be automatically deployed
+
 ## 🤝 Contributing
 
 1. Fork the repository

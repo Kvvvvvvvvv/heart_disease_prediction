@@ -12,11 +12,11 @@ import numpy as np
 import joblib
 import json
 import plotly.graph_objects as go
-from visualization_3d_fixed import create_realistic_3d_heart_html, get_risk_level
-from ollama_integration_improved import OllamaClinicalAssistant
+from ..utils.visualization_3d_fixed import create_realistic_3d_heart_html, get_risk_level
+from ..utils.ollama_integration_improved import OllamaClinicalAssistant
 import matplotlib.pyplot as plt
 import streamlit.components.v1 as components
-from docx_parser import PatientDataParser
+from ..utils.docx_parser import PatientDataParser
 import io
 
 # Page configuration
