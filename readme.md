@@ -1,62 +1,57 @@
-# Heart Disease Prediction System (ML + Clinical Explainability)
+# ❤️ Heart Disease Prediction System  
+### Machine Learning with Clinical-Style Explainability
 
-A comprehensive heart disease risk prediction system built using machine learning, enhanced with explainability, document-based clinical input, and optional 3D visualization for risk interpretation.
+An educational and research-oriented heart disease risk prediction system built using machine learning.  
+The project emphasizes **leak-free training**, **explainable outputs**, and **multiple interaction interfaces** (CLI, Web, Streamlit).
 
-This project goes beyond a basic UCI dataset classifier by integrating:
-- Leak-free ML training
-- Clinical-style explanations
-- DOCX-based patient data ingestion
-- Optional LLM-assisted reasoning (via Ollama)
-- Web and Streamlit interfaces
-- Experimental 3D heart risk visualization (non-diagnostic)
 
 ---
 
-## 📌 Key Objectives
+## 🎯 Project Goals
 
-- Predict the **presence of heart disease** using structured clinical attributes
-- Maintain **data leakage safety** during training
-- Provide **explainable predictions** suitable for academic and demo purposes
-- Enable **multiple interaction modes** (CLI, Web, Streamlit)
-- Avoid generating diagnoses or patient-specific anatomy
-
-> ⚠️ This project is **educational and research-oriented only**.  
-> It must **not** be used for real clinical decision-making.
+- Predict the **presence or absence of heart disease** using structured clinical features
+- Ensure **data leakage prevention** during model training
+- Provide **human-readable explanations** for predictions
+- Support **multiple input & interaction modes**
+- Experiment with **non-diagnostic visual metaphors** for risk interpretation
 
 ---
 
 ## 📊 Dataset
 
 - **Source**: UCI Heart Disease Dataset  
-- **Features include**:
-  - Age
-  - Sex
-  - Chest pain type
-  - Resting blood pressure
-  - Cholesterol
-  - Fasting blood sugar
-  - Resting ECG
-  - Max heart rate
-  - Exercise-induced angina
-  - ST depression
-  - Slope, vessels, thalassemia
+- **Target Variable**: Presence of heart disease (binary classification)
 
-- **Target**: Presence / absence of heart disease
+### Input Features
+- Age
+- Sex
+- Chest pain type
+- Resting blood pressure
+- Serum cholesterol
+- Fasting blood sugar
+- Resting ECG
+- Maximum heart rate
+- Exercise-induced angina
+- ST depression
+- Slope of ST segment
+- Number of major vessels
+- Thalassemia
 
 ---
 
 ## 🧠 Machine Learning Pipeline
 
-1. Data cleaning & validation
-2. Categorical encoding & normalization
-3. Leak-free train/test split
-4. Model training (Random Forest / Logistic Regression)
-5. Cross-validation
-6. Metric evaluation (accuracy, precision, recall, F1)
-7. Feature importance extraction
-8. Model serialization (`.pkl`)
+1. Data cleaning and validation  
+2. Encoding of categorical features  
+3. Feature scaling and normalization  
+4. Leak-free train/test split  
+5. Model training (Logistic Regression / Random Forest)  
+6. Cross-validation  
+7. Model evaluation (Accuracy, Precision, Recall, F1-score)  
+8. Feature importance extraction  
+9. Model serialization  
 
-Relevant files:
+### Core Files
 - `train_model_leak_free.py`
 - `train_and_save_model.py`
 - `heart_disease_model.pkl`
@@ -67,73 +62,110 @@ Relevant files:
 
 ## 🧾 DOCX-Based Clinical Input (Experimental)
 
-This project supports structured `.docx` uploads representing patient summaries.
+Supports structured `.docx` files to simulate clinical summaries.
 
-Supported files:
+### Purpose
+- Mimic clinical report ingestion
+- Map structured text → ML features
+- Improve realism for demos and research
+
+### Files
+- `docx_parser.py`
 - `DOCX_UPLOAD_GUIDE.md`
 - `DOCX_FEATURE_SUMMARY.md`
-- `docx_parser.py`
-
-Purpose:
-- Simulate clinical report ingestion
-- Map text fields → ML features
-- Improve realism for demos & research
 
 ---
 
 ## 🌐 Application Interfaces
 
-### 1️⃣ Flask Web App
-- File: `app.py`
-- Enhanced version: `app_enhanced.py`
-- Entry points:
+### 1️⃣ Flask Web Application
+- `app.py`
+- `app_enhanced.py`
+- Launch helpers:
   - `run_project.py`
   - `start_web_app.bat`
 
-### 2️⃣ Streamlit Interface
-- File: `run_streamlit.py`
-- Fast UI for model testing & visualization
+### 2️⃣ Streamlit Application
+- **Main File**: `streamlit_app.py`
+- Provides:
+  - Interactive UI
+  - Model testing
+  - Feature-based explanations
 
-### 3️⃣ CLI Mode
-- File: `run_heart_disease.py`
-- For quick local predictions
+### 3️⃣ Command Line Interface (CLI)
+- `run_heart_disease.py`
+- Lightweight local predictions
 
 ---
 
 ## 🧠 Explainability & LLM Integration (Optional)
 
-- Local LLM support via **Ollama**
-- Generates:
-  - Human-readable explanations
-  - Feature-driven reasoning summaries
+Optional integration with **Ollama (local LLM)** for explanation generation.
 
-Files:
+### Capabilities
+- Feature-driven reasoning summaries
+- Human-readable explanation text
+
+### Files
 - `ollama_integration.py`
 - `ollama_integration_improved.py`
 - `OLLAMA_SETUP.md`
 
-> This is **assistive reasoning**, not medical advice.
+⚠️ LLM output is **assistive reasoning only**, not medical advice.
 
 ---
 
-## 🫀 3D Risk Visualization (Non-Diagnostic)
+## 🫀 3D Risk Visualization (Experimental)
 
-Experimental 3D heart visualization to represent **risk intensity**, NOT anatomy.
+A metaphorical 3D heart visualization to represent **risk intensity**, not anatomy.
 
-Files:
+### Characteristics
+- Non-diagnostic
+- No patient-specific heart structures
+- Visual metaphor only
+
+### Files
 - `visualization_3d.py`
 - `visualization_3d_fixed.py`
 - `visualization_3d_realistic.py`
 - `REALISTIC_3D_UPDATE.md`
 
-⚠️ The visualization:
-- Does NOT generate patient-specific heart structures
-- Is metaphorical, not clinical imaging
+---
+
+## 🚀 Deployment Notes (Streamlit)
+
+- Platform: **Streamlit Community Cloud**
+- Branch: `main`
+- Main file path:
+
+- App auto-redeploys on every GitHub push
 
 ---
 
-- Does NOT generate patient-specific heart structures
-- Is metaphorical, not clinical imaging
+## ⚠️ Disclaimer
+
+This project is strictly for:
+- Education
+- Academic demonstrations
+- Research experimentation
+
+It **must NOT** be used for:
+- Clinical diagnosis
+- Medical decision-making
+- Patient treatment
 
 ---
->>>>>>> 79f7ad13a62bbbc0b1cea5589d657d37c972cc0e
+
+## 👤 Author
+
+Developed for academic and research exploration in:
+- Machine Learning
+- Explainable AI
+- Health informatics (non-clinical)
+
+---
+
+## 📜 License
+
+For educational and research use only.
+
