@@ -1,31 +1,129 @@
-# Heart Disease Prediction using Machine Learning
+# Heart Disease Prediction System
 
-In this project, we'll explore the application of machine learning algorithms to predict the presence of heart disease based on patients' medical attributes. We'll follow a structured methodology, starting with problem understanding and concluding with model evaluation. Let's delve into the details:
+A comprehensive machine learning application for predicting heart disease risk based on patient medical attributes. Features an interactive web interface with 3D visualization, clinical explanations, and model interpretability.
 
-## Introduction
-Cardiovascular diseases remain a significant cause of mortality worldwide. Early detection and diagnosis are critical for effective treatment and prevention. Machine learning offers a promising approach for predicting heart disease using patient data.
+## 🚀 Features
 
-## Data
-We'll utilize the Heart Disease UCI dataset from the UCI Machine Learning Repository. This dataset contains diverse medical features like age, gender, cholesterol levels, and exercise-induced angina, along with a target variable indicating heart disease presence or absence.
+- **Machine Learning Model**: Random Forest classifier with leak-free pipeline
+- **Interactive Web Interface**: Built with Streamlit
+- **3D Heart Visualization**: Realistic 3D heart model with risk mapping
+- **Clinical Decision Support**: Ollama-powered clinical explanations
+- **Feature Importance**: Model interpretability and insights
+- **Document Parsing**: DOCX patient data import capability
+- **Model Performance**: ~85% accuracy, ~0.91 ROC AUC
 
-## Problem Statement
-Our aim is to develop a machine learning model that accurately determines whether a patient has heart disease based on their medical attributes.
+## 📋 Prerequisites
 
-## Approach
-1. **Exploratory Data Analysis (EDA):** Analyzing the dataset to understand feature distributions and discover correlations or patterns.
-2. **Data Preprocessing:** Handling missing data, encoding categorical variables, and normalizing numerical features.
-3. **Feature Engineering:** Creating new features or transforming existing ones to enhance model performance.
-4. **Model Selection:** Experimenting with various classification algorithms such as Logistic Regression, K-Nearest Neighbors, and Random Forest.
-5. **Model Evaluation:** Assessing each model's performance using metrics like accuracy, precision, recall, and F1-score.
-6. **Hyperparameter Tuning:** Fine-tuning the hyperparameters of selected models to optimize performance.
-7. **Cross-validation:** Evaluating model performance using cross-validation to ensure generalizability.
-8. **Feature Importance:** Identifying the most influential features in predicting heart disease.
-9. **Final Model Selection:** Choosing the best-performing model for deployment.
-10. **Experimentation:** Iterating on the model and exploring alternative approaches to enhance performance.
+- Python 3.8+
+- Docker (optional, for containerized deployment)
 
-## Conclusion
-Through systematic experimentation and evaluation, our goal is to develop a robust machine learning model capable of accurately predicting heart disease. This project underscores the potential of machine learning techniques in healthcare for improved diagnosis and patient care.
+## 🛠️ Installation & Setup
 
-Stay tuned for updates as we progress through each phase of the project!
+### Method 1: Local Installation
 
-If you have any questions or need further clarification on any aspect of the project, please feel free to reach out.
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd heart-disease-prediction
+   ```
+
+2. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Train the model (if not already present):
+   ```bash
+   python src/models/train_model_leak_free.py
+   ```
+
+5. Run the application:
+   ```bash
+   streamlit run src/app/app_enhanced.py
+   ```
+
+### Method 2: Docker Deployment
+
+1. Build the Docker image:
+   ```bash
+   docker build -t heart-disease-prediction .
+   ```
+
+2. Run the container:
+   ```bash
+   docker run -p 8501:8501 heart-disease-prediction
+   ```
+
+## 📁 Project Structure
+
+```
+heart-disease-prediction/
+├── src/                    # Source code
+│   ├── app/                # Application files
+│   │   ├── app.py          # Basic Streamlit app
+│   │   └── app_enhanced.py # Enhanced app with all features
+│   ├── models/             # Model training and management
+│   │   ├── train_model_leak_free.py
+│   │   └── train_and_save_model.py
+│   └── utils/              # Utility functions
+│       ├── docx_parser.py
+│       ├── ollama_integration.py
+│       ├── visualization_3d.py
+│       └── ...             # Other utilities
+├── data/                   # Data files and models
+├── docs/                   # Documentation
+├── tests/                  # Test files
+├── config.py               # Configuration settings
+├── Dockerfile              # Container configuration
+├── requirements.txt        # Dependencies
+└── README.md
+```
+
+## 🔧 Configuration
+
+Environment variables can be set to customize the application:
+
+- `API_HOST`: Host address (default: 0.0.0.0)
+- `API_PORT`: Port number (default: 8501)
+- `DEBUG`: Enable debug mode (default: False)
+- `LOG_LEVEL`: Logging level (default: INFO)
+
+## 🧪 Running Tests
+
+Execute the test suite:
+
+```bash
+python -m pytest tests/
+```
+
+## 🚢 Production Deployment
+
+For production deployments, consider:
+
+1. Using environment variables for configuration
+2. Setting up a reverse proxy (nginx/Apache)
+3. Implementing proper logging
+4. Securing the application
+5. Monitoring and alerting
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## ⚠️ Disclaimer
+
+This application is intended for educational and research purposes only. It does not constitute medical advice and should not be used as a substitute for professional medical consultation. Always consult qualified healthcare professionals for medical decisions.
