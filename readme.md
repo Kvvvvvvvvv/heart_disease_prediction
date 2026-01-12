@@ -261,6 +261,15 @@ To deploy to Streamlit Sharing:
 3. Connect to Streamlit Sharing and point to `streamlit_app/streamlit_app.py`
 4. The app will be automatically deployed
 
+## 🌐 Alternative Streamlit Cloud Deployment
+
+For Streamlit Cloud deployment, you can also use the renamed file in the root directory:
+
+1. The file `streamlit_app.py` in the root directory is a direct entry point for Streamlit Cloud
+2. This follows Streamlit Cloud's convention of looking for streamlit_app.py in the root
+3. Ensure model files (`heart_disease_model.pkl`, `feature_names.json`) are in the root directory
+4. Deploy directly to Streamlit Cloud by connecting this repository
+
 ## 🤝 Contributing
 
 1. Fork the repository
