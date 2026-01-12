@@ -9,6 +9,10 @@ import joblib
 import json
 import plotly.graph_objects as go
 from datetime import datetime
+import os
+
+# Constants
+MAX_DISPLAYED_FEATURES = 6  # Number of top features to show in visualization
 
 # Page configuration
 st.set_page_config(
@@ -224,7 +228,6 @@ st.markdown("""
 @st.cache_resource
 def load_model():
     """Load the trained model"""
-    import os
     try:
         # Try multiple possible paths
         possible_paths = [
@@ -289,11 +292,11 @@ def create_gauge_chart(value, title):
 def create_feature_contribution_chart(patient_data, feature_names):
     """Create a chart showing which features contributed to the prediction"""
     # Get feature values and normalize them for visualization
-    values = [patient_data[name][0] for name in feature_names[:6]]  # Top 6 features
+    values = [patient_data[name][0] for name in feature_names[:MAX_DISPLAYED_FEATURES]]
     
     fig = go.Figure(data=[
         go.Bar(
-            x=feature_names[:6],
+            x=feature_names[:MAX_DISPLAYED_FEATURES],
             y=values,
             marker=dict(
                 color=values,
