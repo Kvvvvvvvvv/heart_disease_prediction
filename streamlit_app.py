@@ -32,7 +32,7 @@ print()
 
 # Run streamlit
 try:
-    subprocess.run([sys.executable, "-m", "streamlit", "run", "app.py"], check=True)
+    subprocess.run([sys.executable, "-m", "streamlit", "run", "src/app/app.py"], check=True)
 except KeyboardInterrupt:
     print("\n\nServer stopped by user.")
 except subprocess.CalledProcessError as e:
