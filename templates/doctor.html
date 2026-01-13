@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard - Medical System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --header-height: 70px;
+        }
+        
+        body {
+            font-family: var(--font-family);
+            overflow-x: hidden;
+        }
+        
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            transition: transform var(--transition-normal);
+            overflow-y: auto;
+        }
+        
+        .sidebar-brand {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .sidebar-brand h1 {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            margin: 0;
+            color: var(--accent-primary);
+        }
+        
+        .sidebar-nav {
+            padding: var(--spacing-md);
+        }
+        
+        .nav-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: 0.5rem;
+            margin-bottom: var(--spacing-xs);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .nav-item:hover {
+            background-color: var(--bg-secondary);
+        }
+        
+        .nav-item.active {
+            background-color: var(--accent-light);
+            color: var(--accent-primary);
+            font-weight: var(--font-weight-semibold);
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: margin-left var(--transition-normal);
+        }
+        
+        /* Header */
+        .header {
+            height: var(--header-height);
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--spacing-lg);
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+        
+        .header-title {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+        
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: var(--spacing-sm);
+            border-radius: 50%;
+            color: var(--text-primary);
+        }
+        
+        .theme-toggle:hover {
+            background-color: var(--bg-secondary);
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            cursor: pointer;
+        }
+        
+        /* Content Area */
+        .content {
+            padding: var(--spacing-lg);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: var(--spacing-lg);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--accent-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+        
+        .card-section {
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .section-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--spacing-md);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        /* Patient List */
+        .patient-list {
+            display: grid;
+            gap: var(--spacing-md);
+        }
+        
+        .patient-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: var(--spacing-lg);
+            transition: transform var(--transition-fast);
+        }
+        
+        .patient-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .patient-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .patient-name {
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--font-size-lg);
+            color: var(--text-primary);
+        }
+        
+        .patient-id {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+        
+        .patient-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-label {
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .info-value {
+            font-weight: var(--font-weight-medium);
+            color: var(--text-primary);
+        }
+        
+        .patient-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-md);
+        }
+        
+        /* Predictions Table */
+        .predictions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: var(--spacing-md);
+        }
+        
+        .predictions-table th,
+        .predictions-table td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .predictions-table th {
+            background-color: var(--bg-secondary);
+            font-weight: var(--font-weight-semibold);
+        }
+        
+        .predictions-table tr:hover {
+            background-color: var(--bg-secondary);
+        }
+        
+        .risk-high {
+            color: var(--danger);
+            font-weight: var(--font-weight-semibold);
+        }
+        
+        .risk-medium {
+            color: var(--warning);
+            font-weight: var(--font-weight-semibold);
+        }
+        
+        .risk-low {
+            color: var(--success);
+            font-weight: var(--font-weight-semibold);
+        }
+        
+        /* Chat Panel */
+        .chat-panel {
+            position: fixed;
+            right: var(--spacing-md);
+            bottom: var(--spacing-md);
+            width: 350px;
+            height: 500px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .chat-header {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-secondary);
+            border-top-left-radius: 0.75rem;
+            border-top-right-radius: 0.75rem;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: 0.75rem;
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .message-sent {
+            align-self: flex-end;
+            background-color: var(--accent-primary);
+            color: white;
+            border-bottom-right-radius: 0;
+        }
+        
+        .message-received {
+            align-self: flex-start;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border-bottom-left-radius: 0;
+        }
+        
+        .chat-input-area {
+            padding: var(--spacing-md);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: var(--spacing-sm);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+        
+        .chat-send-btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            background-color: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+        
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+        
+        /* Mobile Toggle */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: var(--spacing-md);
+            left: var(--spacing-md);
+            z-index: 101;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: var(--spacing-sm);
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+            
+            .chat-panel {
+                width: calc(100vw - 2 * var(--spacing-md));
+                height: 400px;
+            }
+        }
+        
+        /* Loading States */
+        .skeleton-card {
+            height: 100px;
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .skeleton-text-line {
+            height: 16px;
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .skeleton-avatar {
+            width: 40px;
+            height: 40px;
+            margin-bottom: var(--spacing-md);
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h1>🏥 MedDash</h1>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-item active" data-tab="dashboard">
+                    <span>📊</span>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-tab="patients">
+                    <span>👥</span>
+                    <span>My Patients</span>
+                </div>
+                <div class="nav-item" data-tab="consultations">
+                    <span>診</span>
+                    <span>Consultations</span>
+                </div>
+                <div class="nav-item" data-tab="chat">
+                    <span>💬</span>
+                    <span>Chat</span>
+                </div>
+                <div class="nav-item" data-tab="reports">
+                    <span>📋</span>
+                    <span>Reports</span>
+                </div>
+                <div class="nav-item" onclick="logout()">
+                    <span>🚪</span>
+                    <span>Logout</span>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                <h1 class="header-title">Doctor Dashboard</h1>
+                <div class="header-actions">
+                    <button class="theme-toggle" id="themeToggle">🌙</button>
+                    <div class="user-profile">
+                        <div class="avatar">D</div>
+                        <span id="userName">Doctor</span>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content -->
+            <div class="content">
+                <!-- Dashboard Tab -->
+                <div id="dashboardTab" class="tab-content active">
+                    <div class="dashboard-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalPatients">0</div>
+                            <div class="stat-label">Total Patients</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="activeConsultations">0</div>
+                            <div class="stat-label">Active Consultations</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="highRiskCases">0</div>
+                            <div class="stat-label">High Risk Cases</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="avgResponseTime">--</div>
+                            <div class="stat-label">Avg. Response Time</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-section">
+                        <h2 class="section-title">📈 Recent Consultations</h2>
+                        <div id="recentConsultations">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+                    
+                    <div class="card-section">
+                        <h2 class="section-title">⚠️ Critical Cases</h2>
+                        <div id="criticalCases">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Patients Tab -->
+                <div id="patientsTab" class="tab-content" style="display: none;">
+                    <div class="card-section">
+                        <h2 class="section-title">👥 My Patients</h2>
+                        <div class="search-bar">
+                            <input type="text" class="search-input" id="patientSearch" placeholder="Search patients...">
+                        </div>
+                        <div id="patientsList">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Consultations Tab -->
+                <div id="consultationsTab" class="tab-content" style="display: none;">
+                    <div class="card-section">
+                        <h2 class="section-title">診 Consultations</h2>
+                        <div id="consultationsList">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat Tab -->
+                <div id="chatTab" class="tab-content" style="display: none;">
+                    <div class="card-section">
+                        <h2 class="section-title">💬 Patient Chats</h2>
+                        <div id="chatContent">
+                            <div id="chatPlaceholder">
+                                <p>Select a patient from the sidebar to start a conversation.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Reports Tab -->
+                <div id="reportsTab" class="tab-content" style="display: none;">
+                    <div class="card-section">
+                        <h2 class="section-title">📋 Reports</h2>
+                        <div id="reportsContent">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Chat Panel -->
+    <div class="chat-panel" id="chatPanel">
+        <div class="chat-header">
+            <h3 id="chatPatientName">Chat with Patient</h3>
+            <button onclick="closeChat()" class="btn btn-sm">×</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages will be populated here -->
+        </div>
+        <div class="chat-input-area">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Type your message...">
+            <button class="chat-send-btn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ui/toast.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ui/loader.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboards/doctor.js') }}"></script>
+    <script>
+        // Initialize doctor dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDoctorDashboard();
+        });
+    </script>
+</body>
+</html>

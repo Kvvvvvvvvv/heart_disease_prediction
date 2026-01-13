@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Dashboard Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+    <style>
+        :root {
+            --login-bg-gradient: linear-gradient(135deg, var(--accent-primary), #1e40af);
+        }
+        
+        body {
+            background: var(--login-bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-family);
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            padding: var(--spacing-xl);
+            background: var(--bg-card);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--login-bg-gradient);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .logo h1 {
+            color: var(--text-primary);
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .logo p {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+        
+        .form-group {
+            margin-bottom: 0;
+        }
+        
+        .form-label {
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: var(--spacing-sm);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+        
+        .form-control {
+            padding-left: 2.5rem;
+        }
+        
+        .login-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: var(--spacing-sm);
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+        
+        .remember-me input[type="checkbox"] {
+            margin: 0;
+        }
+        
+        .forgot-password {
+            color: var(--accent-primary);
+            font-size: var(--font-size-sm);
+            text-decoration: none;
+        }
+        
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+        
+        .login-btn {
+            width: 100%;
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md);
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: var(--spacing-lg) 0;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .divider span {
+            padding: 0 var(--spacing-md);
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+        
+        .demo-credentials {
+            background-color: var(--bg-secondary);
+            border-radius: 0.5rem;
+            padding: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+        }
+        
+        .demo-credentials h4 {
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-primary);
+            font-size: var(--font-size-base);
+        }
+        
+        .credential-item {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--spacing-xs) 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .credential-label {
+            font-weight: var(--font-weight-medium);
+            color: var(--text-primary);
+        }
+        
+        .credential-value {
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+        
+        .register-link {
+            text-align: center;
+            margin-top: var(--spacing-lg);
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+        
+        .register-link a {
+            color: var(--accent-primary);
+            font-weight: var(--font-weight-semibold);
+            text-decoration: none;
+        }
+        
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .loading-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 1rem;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        
+        .error-message {
+            display: none;
+            background-color: #fee2e2;
+            color: #dc2626;
+            padding: var(--spacing-sm);
+            border-radius: 0.5rem;
+            margin-top: var(--spacing-sm);
+            font-size: var(--font-size-sm);
+            border-left: 4px solid #dc2626;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                margin: var(--spacing-md);
+                padding: var(--spacing-lg);
+            }
+            
+            .login-actions {
+                flex-direction: column;
+                gap: var(--spacing-sm);
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>🏥 Medical Dashboard</h1>
+            <p>Secure Healthcare Management System</p>
+        </div>
+        
+        <div class="error-message" id="errorMessage"></div>
+        
+        <form class="login-form" id="loginForm">
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <div class="input-group">
+                    <span class="input-icon">👤</span>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+                </div>
+            </div>
+            
+            <div class="login-actions">
+                <label class="remember-me">
+                    <input type="checkbox" id="rememberMe">
+                    <span>Remember me</span>
+                </label>
+                <a href="#" class="forgot-password">Forgot Password?</a>
+            </div>
+            
+            <button type="submit" class="btn btn-primary login-btn" id="loginButton">
+                <span class="button-text">Sign In</span>
+                <span class="spinner" style="display: none;"></span>
+            </button>
+        </form>
+        
+        <div class="divider">
+            <span>Demo Credentials</span>
+        </div>
+        
+        <div class="demo-credentials">
+            <h4>Quick Access</h4>
+            <div class="credential-item">
+                <span class="credential-label">Admin:</span>
+                <span class="credential-value">admin / admin123</span>
+            </div>
+            <div class="credential-item">
+                <span class="credential-label">Doctor:</span>
+                <span class="credential-value">doctor1 / doctor123</span>
+            </div>
+            <div class="credential-item">
+                <span class="credential-label">User:</span>
+                <span class="credential-value">user1 / user123</span>
+            </div>
+        </div>
+        
+        <div class="register-link">
+            Don't have an account? <a href="#">Contact Administrator</a>
+        </div>
+        
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    <script>
+        // Initialize login functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const loginButton = document.getElementById('loginButton');
+            const errorMessage = document.getElementById('errorMessage');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(loginForm);
+                const userData = {
+                    username: formData.get('username'),
+                    password: formData.get('password')
+                };
+                
+                // Show loading state
+                const buttonText = loginButton.querySelector('.button-text');
+                const spinner = loginButton.querySelector('.spinner');
+                buttonText.style.display = 'none';
+                spinner.style.display = 'inline-block';
+                loginButton.disabled = true;
+                
+                try {
+                    const response = await login(userData);
+                    
+                    if (response.success) {
+                        // Redirect based on role
+                        window.location.href = `/${response.user.role}`;
+                    } else {
+                        errorMessage.textContent = response.message || 'Login failed';
+                        errorMessage.style.display = 'block';
+                    }
+                } catch (error) {
+                    errorMessage.textContent = error.message || 'An error occurred during login';
+                    errorMessage.style.display = 'block';
+                } finally {
+                    // Reset button state
+                    buttonText.style.display = 'inline';
+                    spinner.style.display = 'none';
+                    loginButton.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
