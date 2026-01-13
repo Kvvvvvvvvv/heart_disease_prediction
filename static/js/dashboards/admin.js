@@ -11,7 +11,8 @@ class AdminDashboard {
     async initialize() {
         try {
             // Load admin data
-            this.adminData = await getAdminDashboard();
+            const adminDashboardResponse = await getAdminDashboard();
+            this.adminData = adminDashboardResponse.data;
             
             // Update UI with admin data
             this.updateUserInfo();

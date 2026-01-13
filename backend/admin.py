@@ -11,89 +11,150 @@ def get_db_connection():
 
 @admin_bp.route('/dashboard', methods=['GET'])
 def dashboard():
-    if 'user_id' not in session or session.get('role') != 'admin':
-        return jsonify({'error': 'Not authorized'}), 401
-    
-    conn = get_db_connection()
-    # Get system stats
-    user_count = conn.execute('SELECT COUNT(*) FROM users WHERE role = "user"').fetchone()[0]
-    doctor_count = conn.execute('SELECT COUNT(*) FROM users WHERE role = "doctor"').fetchone()[0]
-    prediction_count = conn.execute('SELECT COUNT(*) FROM predictions').fetchone()[0]
-    chat_count = conn.execute('SELECT COUNT(*) FROM chats').fetchone()[0]
-    
-    # Get recent activity
-    recent_users = conn.execute('''
-        SELECT id, username, role, created_at
-        FROM users
-        ORDER BY created_at DESC
-        LIMIT 10
-    ''').fetchall()
-    
-    conn.close()
-    
-    return jsonify({
-        'stats': {
-            'users': user_count,
-            'doctors': doctor_count,
-            'predictions': prediction_count,
-            'chats': chat_count
-        },
-        'recent_activity': [dict(user) for user in recent_users]
-    })
+    try:
+        if 'user_id' not in session or session.get('role') != 'admin':
+            return jsonify({
+                'status': 'error', 
+                'message': 'Not authorized',
+                'data': {}
+            }), 401
+        
+        conn = get_db_connection()
+        # Get system stats
+        user_count = conn.execute('SELECT COUNT(*) FROM users WHERE role = "user"').fetchone()[0]
+        doctor_count = conn.execute('SELECT COUNT(*) FROM users WHERE role = "doctor"').fetchone()[0]
+        prediction_count = conn.execute('SELECT COUNT(*) FROM predictions').fetchone()[0]
+        chat_count = conn.execute('SELECT COUNT(*) FROM chats').fetchone()[0]
+        
+        # Get recent activity
+        recent_users = conn.execute('''
+            SELECT id, username, role, created_at
+            FROM users
+            ORDER BY created_at DESC
+            LIMIT 10
+        ''').fetchall()
+        
+        conn.close()
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'Dashboard data retrieved successfully',
+            'data': {
+                'stats': {
+                    'users': user_count,
+                    'doctors': doctor_count,
+                    'predictions': prediction_count,
+                    'chats': chat_count
+                },
+                'recent_activity': [dict(user) for user in recent_users]
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e),
+            'data': {}
+        }), 500
 
 @admin_bp.route('/users', methods=['GET'])
 def get_all_users():
-    if 'user_id' not in session or session.get('role') != 'admin':
-        return jsonify({'error': 'Not authorized'}), 401
-    
-    conn = get_db_connection()
-    users = conn.execute('SELECT id, username, role, email, created_at FROM users ORDER BY created_at DESC').fetchall()
-    conn.close()
-    
-    return jsonify([dict(user) for user in users])
+    try:
+        if 'user_id' not in session or session.get('role') != 'admin':
+            return jsonify({
+                'status': 'error', 
+                'message': 'Not authorized',
+                'data': {}
+            }), 401
+        
+        conn = get_db_connection()
+        users = conn.execute('SELECT id, username, role, email, created_at FROM users ORDER BY created_at DESC').fetchall()
+        conn.close()
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'Users retrieved successfully',
+            'data': [dict(user) for user in users]
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e),
+            'data': {}
+        }), 500
 
 @admin_bp.route('/doctors', methods=['GET'])
 def get_all_doctors():
-    if 'user_id' not in session or session.get('role') != 'admin':
-        return jsonify({'error': 'Not authorized'}), 401
-    
-    conn = get_db_connection()
-    doctors = conn.execute('''
-        SELECT u.id, u.username, u.email, d.specialization, d.license_number, u.created_at
-        FROM users u
-        LEFT JOIN doctors d ON u.id = d.user_id
-        WHERE u.role = 'doctor'
-        ORDER BY u.created_at DESC
-    ''').fetchall()
-    conn.close()
-    
-    return jsonify([dict(doctor) for doctor in doctors])
+    try:
+        if 'user_id' not in session or session.get('role') != 'admin':
+            return jsonify({
+                'status': 'error', 
+                'message': 'Not authorized',
+                'data': {}
+            }), 401
+        
+        conn = get_db_connection()
+        doctors = conn.execute('''
+            SELECT u.id, u.username, u.email, d.specialization, d.license_number, u.created_at
+            FROM users u
+            LEFT JOIN doctors d ON u.id = d.user_id
+            WHERE u.role = 'doctor'
+            ORDER BY u.created_at DESC
+        ''').fetchall()
+        conn.close()
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'Doctors retrieved successfully',
+            'data': [dict(doctor) for doctor in doctors]
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e),
+            'data': {}
+        }), 500
 
 @admin_bp.route('/users', methods=['POST'])
 def create_user():
-    if 'user_id' not in session or session.get('role') != 'admin':
-        return jsonify({'error': 'Not authorized'}), 401
-    
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
-    email = data.get('email')
-    role = data.get('role', 'user')
-    
-    if not username or not password or not email:
-        return jsonify({'error': 'Username, password, and email are required'}), 400
-    
-    if role not in ['user', 'doctor']:
-        return jsonify({'error': 'Invalid role. Use "user" or "doctor"'}), 400
-    
-    conn = get_db_connection()
-    # Check if username already exists
-    existing_user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
-    if existing_user:
-        conn.close()
-        return jsonify({'error': 'Username already exists'}), 409
-    
     try:
+        if 'user_id' not in session or session.get('role') != 'admin':
+            return jsonify({
+                'status': 'error', 
+                'message': 'Not authorized',
+                'data': {}
+            }), 401
+        
+        data = request.get_json()
+        username = data.get('username')
+        password = data.get('password')
+        email = data.get('email')
+        role = data.get('role', 'user')
+        
+        if not username or not password or not email:
+            return jsonify({
+                'status': 'error', 
+                'message': 'Username, password, and email are required',
+                'data': {}
+            }), 400
+        
+        if role not in ['user', 'doctor']:
+            return jsonify({
+                'status': 'error', 
+                'message': 'Invalid role. Use "user" or "doctor"',
+                'data': {}
+            }), 400
+        
+        conn = get_db_connection()
+        # Check if username already exists
+        existing_user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
+        if existing_user:
+            conn.close()
+            return jsonify({
+                'status': 'error', 
+                'message': 'Username already exists',
+                'data': {}
+            }), 409
+        
         password_hash = generate_password_hash(password)
         conn.execute('INSERT INTO users (username, password_hash, role, email) VALUES (?, ?, ?, ?)',
                      (username, password_hash, role, email))
@@ -107,23 +168,33 @@ def create_user():
         conn.close()
         
         return jsonify({
-            'success': True,
+            'status': 'success',
             'message': 'User created successfully',
-            'user_id': user_id
+            'data': {
+                'user_id': user_id
+            }
         })
     except Exception as e:
         conn.close()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'status': 'error',
+            'message': str(e),
+            'data': {}
+        }), 500
 
 @admin_bp.route('/users/<int:user_id>', methods=['PUT'])
 def update_user(user_id):
-    if 'user_id' not in session or session.get('role') != 'admin':
-        return jsonify({'error': 'Not authorized'}), 401
-    
-    data = request.get_json()
-    conn = get_db_connection()
-    
     try:
+        if 'user_id' not in session or session.get('role') != 'admin':
+            return jsonify({
+                'status': 'error', 
+                'message': 'Not authorized',
+                'data': {}
+            }), 401
+        
+        data = request.get_json()
+        conn = get_db_connection()
+        
         # Update user info
         update_fields = []
         params = []
@@ -146,29 +217,49 @@ def update_user(user_id):
         conn.commit()
         conn.close()
         
-        return jsonify({'success': True, 'message': 'User updated successfully'})
+        return jsonify({
+            'status': 'success',
+            'message': 'User updated successfully',
+            'data': {}
+        })
     except Exception as e:
         conn.close()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'status': 'error',
+            'message': str(e),
+            'data': {}
+        }), 500
 
 @admin_bp.route('/users/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
-    if 'user_id' not in session or session.get('role') != 'admin':
-        return jsonify({'error': 'Not authorized'}), 401
-    
-    # Don't allow deleting admin users
-    conn = get_db_connection()
-    user = conn.execute('SELECT role FROM users WHERE id = ?', (user_id,)).fetchone()
-    
-    if not user:
-        conn.close()
-        return jsonify({'error': 'User not found'}), 404
-    
-    if user['role'] == 'admin':
-        conn.close()
-        return jsonify({'error': 'Cannot delete admin users'}), 403
-    
     try:
+        if 'user_id' not in session or session.get('role') != 'admin':
+            return jsonify({
+                'status': 'error', 
+                'message': 'Not authorized',
+                'data': {}
+            }), 401
+        
+        # Don't allow deleting admin users
+        conn = get_db_connection()
+        user = conn.execute('SELECT role FROM users WHERE id = ?', (user_id,)).fetchone()
+        
+        if not user:
+            conn.close()
+            return jsonify({
+                'status': 'error', 
+                'message': 'User not found',
+                'data': {}
+            }), 404
+        
+        if user['role'] == 'admin':
+            conn.close()
+            return jsonify({
+                'status': 'error', 
+                'message': 'Cannot delete admin users',
+                'data': {}
+            }), 403
+        
         # Remove assignments and related data
         conn.execute('DELETE FROM assignments WHERE user_id = ? OR doctor_id = ?', (user_id, user_id))
         conn.execute('DELETE FROM predictions WHERE user_id = ?', (user_id,))
@@ -178,38 +269,62 @@ def delete_user(user_id):
         conn.commit()
         conn.close()
         
-        return jsonify({'success': True, 'message': 'User deleted successfully'})
+        return jsonify({
+            'status': 'success',
+            'message': 'User deleted successfully',
+            'data': {}
+        })
     except Exception as e:
         conn.close()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'status': 'error',
+            'message': str(e),
+            'data': {}
+        }), 500
 
 @admin_bp.route('/assignments', methods=['POST'])
 def assign_user_to_doctor():
-    if 'user_id' not in session or session.get('role') != 'admin':
-        return jsonify({'error': 'Not authorized'}), 401
-    
-    data = request.get_json()
-    user_id = data.get('user_id')
-    doctor_id = data.get('doctor_id')
-    
-    if not user_id or not doctor_id:
-        return jsonify({'error': 'User ID and Doctor ID are required'}), 400
-    
-    conn = get_db_connection()
-    
-    # Verify that both user and doctor exist
-    user_exists = conn.execute('SELECT * FROM users WHERE id = ? AND role = "user"', (user_id,)).fetchone()
-    doctor_exists = conn.execute('SELECT * FROM users WHERE id = ? AND role = "doctor"', (doctor_id,)).fetchone()
-    
-    if not user_exists:
-        conn.close()
-        return jsonify({'error': 'User not found or invalid role'}), 404
-    
-    if not doctor_exists:
-        conn.close()
-        return jsonify({'error': 'Doctor not found or invalid role'}), 404
-    
     try:
+        if 'user_id' not in session or session.get('role') != 'admin':
+            return jsonify({
+                'status': 'error', 
+                'message': 'Not authorized',
+                'data': {}
+            }), 401
+        
+        data = request.get_json()
+        user_id = data.get('user_id')
+        doctor_id = data.get('doctor_id')
+        
+        if not user_id or not doctor_id:
+            return jsonify({
+                'status': 'error', 
+                'message': 'User ID and Doctor ID are required',
+                'data': {}
+            }), 400
+        
+        conn = get_db_connection()
+        
+        # Verify that both user and doctor exist
+        user_exists = conn.execute('SELECT * FROM users WHERE id = ? AND role = "user"', (user_id,)).fetchone()
+        doctor_exists = conn.execute('SELECT * FROM users WHERE id = ? AND role = "doctor"', (doctor_id,)).fetchone()
+        
+        if not user_exists:
+            conn.close()
+            return jsonify({
+                'status': 'error', 
+                'message': 'User not found or invalid role',
+                'data': {}
+            }), 404
+        
+        if not doctor_exists:
+            conn.close()
+            return jsonify({
+                'status': 'error', 
+                'message': 'Doctor not found or invalid role',
+                'data': {}
+            }), 404
+        
         # Remove any existing assignment
         conn.execute('DELETE FROM assignments WHERE user_id = ?', (user_id,))
         # Create new assignment
@@ -217,23 +332,46 @@ def assign_user_to_doctor():
         conn.commit()
         conn.close()
         
-        return jsonify({'success': True, 'message': 'Assignment created successfully'})
+        return jsonify({
+            'status': 'success',
+            'message': 'Assignment created successfully',
+            'data': {}
+        })
     except Exception as e:
         conn.close()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'status': 'error',
+            'message': str(e),
+            'data': {}
+        }), 500
 
 @admin_bp.route('/logs', methods=['GET'])
 def get_system_logs():
-    if 'user_id' not in session or session.get('role') != 'admin':
-        return jsonify({'error': 'Not authorized'}), 401
-    
-    # This would typically connect to a logging system
-    # For now, we'll return a sample response
-    return jsonify({
-        'logs': [
-            {'timestamp': '2024-01-13 22:30:00', 'level': 'INFO', 'message': 'System started'},
-            {'timestamp': '2024-01-13 22:31:00', 'level': 'INFO', 'message': 'Database initialized'},
-            {'timestamp': '2024-01-13 22:32:00', 'level': 'INFO', 'message': 'Admin logged in'},
-            {'timestamp': '2024-01-13 22:33:00', 'level': 'INFO', 'message': 'New user created: user1'},
-        ]
-    })
+    try:
+        if 'user_id' not in session or session.get('role') != 'admin':
+            return jsonify({
+                'status': 'error', 
+                'message': 'Not authorized',
+                'data': {}
+            }), 401
+        
+        # This would typically connect to a logging system
+        # For now, we'll return a sample response
+        return jsonify({
+            'status': 'success',
+            'message': 'System logs retrieved successfully',
+            'data': {
+                'logs': [
+                    {'timestamp': '2024-01-13 22:30:00', 'level': 'INFO', 'message': 'System started'},
+                    {'timestamp': '2024-01-13 22:31:00', 'level': 'INFO', 'message': 'Database initialized'},
+                    {'timestamp': '2024-01-13 22:32:00', 'level': 'INFO', 'message': 'Admin logged in'},
+                    {'timestamp': '2024-01-13 22:33:00', 'level': 'INFO', 'message': 'New user created: user1'},
+                ]
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e),
+            'data': {}
+        }), 500

@@ -12,8 +12,11 @@ class UserDashboard {
     async initialize() {
         try {
             // Load user data
-            this.userData = await getUserDashboard();
-            this.assignedDoctor = await getAssignedDoctor();
+            const userDashboardResponse = await getUserDashboard();
+            this.userData = userDashboardResponse.data;
+            
+            const assignedDoctorResponse = await getAssignedDoctor();
+            this.assignedDoctor = assignedDoctorResponse.data || assignedDoctorResponse;
             
             // Update UI with user data
             this.updateUserInfo();
@@ -195,7 +198,8 @@ class UserDashboard {
             patientData.thal = parseInt(patientData.thal);
 
             // Make prediction
-            const result = await makePrediction(patientData);
+            const resultResponse = await makePrediction(patientData);
+            const result = resultResponse.data;
 
             // Display results
             this.displayPredictionResult(result);
@@ -320,7 +324,8 @@ class UserDashboard {
             const historyContainer = document.getElementById('historyContent');
             showSkeletonText(historyContainer, 5);
 
-            const predictions = await getPredictionHistory();
+            const historyResponse = await getPredictionHistory();
+                        const predictions = historyResponse.data;
             
             if (predictions.length === 0) {
                 historyContainer.innerHTML = `
@@ -419,10 +424,11 @@ class UserDashboard {
             }
 
             try {
-                await sendMessage({
+                const response = await sendMessage({
                     receiver_id: this.chatReceiverId,
                     message: message
                 });
+                console.log('Message sent:', response);
 
                 input.value = '';
                 await this.loadChatMessages(); // Refresh messages
@@ -461,13 +467,14 @@ class UserDashboard {
         if (!this.chatReceiverId) return;
 
         try {
-            const messages = await getMessages(this.chatReceiverId);
+            const messagesResponse = await getMessages(this.chatReceiverId);
+            const messages = messagesResponse.data.messages;
             const messagesContainer = document.getElementById('chatMessages');
             
             messagesContainer.innerHTML = '';
 
             messages.forEach(message => {
-                const isOwnMessage = message.sender_id == userId; // Assuming userId is available globally
+                const isOwnMessage = message.sender_id == getUserId(); // Using auth manager to get user ID
                 const messageClass = isOwnMessage ? 'message-sent' : 'message-received';
                 
                 const messageElement = document.createElement('div');

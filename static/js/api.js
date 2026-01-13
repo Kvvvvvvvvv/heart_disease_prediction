@@ -17,12 +17,42 @@ class ApiClient {
 
         try {
             const response = await fetch(url, config);
-            const data = await response.json();
-
+            
+            // Check if response is ok before attempting to parse JSON
             if (!response.ok) {
-                throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                // Try to get error text if available
+                let errorData;
+                try {
+                    errorData = await response.text();
+                    // Attempt to parse as JSON if possible
+                    try {
+                        errorData = JSON.parse(errorData);
+                    } catch {
+                        // If not JSON, use as string
+                    }
+                } catch {
+                    errorData = `HTTP error! status: ${response.status}`;
+                }
+                
+                const errorMessage = typeof errorData === 'object' && errorData.message 
+                    ? errorData.message 
+                    : (typeof errorData === 'string' ? errorData : `HTTP error! status: ${response.status}`);
+                
+                throw new Error(errorMessage);
             }
-
+            
+            // Safely parse the JSON response
+            const data = await response.json();
+            
+            // Validate that the response follows the expected format
+            if (data.status !== 'success' && data.status !== 'error') {
+                throw new Error('Invalid API response format: missing status field');
+            }
+            
+            if (data.status === 'error') {
+                throw new Error(data.message || 'API request failed');
+            }
+            
             return data;
         } catch (error) {
             console.error('API Error:', error);

@@ -11,7 +11,8 @@ class DoctorDashboard {
     async initialize() {
         try {
             // Load doctor data
-            this.doctorData = await getDoctorDashboard();
+            const doctorDashboardResponse = await getDoctorDashboard();
+            this.doctorData = doctorDashboardResponse.data;
             
             // Update UI with doctor data
             this.updateUserInfo();

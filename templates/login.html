@@ -329,9 +329,12 @@
                 try {
                     const response = await login(userData);
                     
-                    if (response.success) {
+                    if (response.status === 'success' && response.data && response.data.user) {
+                        // Store user info in localStorage
+                        localStorage.setItem('user', JSON.stringify(response.data.user));
+                        
                         // Redirect based on role
-                        window.location.href = `/${response.user.role}`;
+                        window.location.href = `/${response.data.user.role}`;
                     } else {
                         errorMessage.textContent = response.message || 'Login failed';
                         errorMessage.style.display = 'block';
