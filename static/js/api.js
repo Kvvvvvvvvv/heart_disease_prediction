@@ -12,6 +12,7 @@ class ApiClient {
                 'Content-Type': 'application/json',
                 ...options.headers
             },
+            credentials: 'include',  // Include cookies with requests
             ...options
         };
 
