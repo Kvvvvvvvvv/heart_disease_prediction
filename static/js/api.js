@@ -88,6 +88,16 @@ class ApiClient {
         });
     }
 
+    async getUserId() {
+        try {
+            const profile = await this.getProfile();
+            return profile.data?.user?.id || null;
+        } catch (error) {
+            console.error('Error getting user ID:', error);
+            return null;
+        }
+    }
+
     // User methods
     async getUserDashboard() {
         return this.request('/user/dashboard', {
@@ -205,6 +215,18 @@ class ApiClient {
         });
     }
 
+    async getAssignments() {
+        return this.request('/admin/assignments', {
+            method: 'GET'
+        });
+    }
+
+    async deleteAssignment(assignmentId) {
+        return this.request(`/admin/assignments/${assignmentId}`, {
+            method: 'DELETE'
+        });
+    }
+
     // Chat methods
     async sendMessage(messageData) {
         return this.request('/chat/send', {
@@ -253,6 +275,7 @@ const login = (credentials) => apiClient.login(credentials);
 const logout = () => apiClient.logout();
 const register = (userData) => apiClient.register(userData);
 const getProfile = () => apiClient.getProfile();
+const getUserId = () => apiClient.getUserId();
 
 const getUserDashboard = () => apiClient.getUserDashboard();
 const makePrediction = (patientData) => apiClient.makePrediction(patientData);
@@ -274,6 +297,8 @@ const updateUser = (userId, userData) => apiClient.updateUser(userId, userData);
 const deleteUser = (userId) => apiClient.deleteUser(userId);
 const assignUserToDoctor = (assignmentData) => apiClient.assignUserToDoctor(assignmentData);
 const getSystemLogs = () => apiClient.getSystemLogs();
+const getAssignments = () => apiClient.getAssignments();
+const deleteAssignment = (assignmentId) => apiClient.deleteAssignment(assignmentId);
 
 const sendMessage = (messageData) => apiClient.sendMessage(messageData);
 const getMessages = (receiverId) => apiClient.getMessages(receiverId);
@@ -287,10 +312,10 @@ if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         ApiClient,
         apiClient,
-        login, logout, register, getProfile,
+        login, logout, register, getProfile, getUserId,
         getUserDashboard, makePrediction, getPredictionHistory, requestConsultation, getAssignedDoctor,
         getDoctorDashboard, getAssignedUsers, getUserPredictions, updateConsultationStatus, searchPatients,
-        getAdminDashboard, getAllUsers, getAllDoctors, createUser, updateUser, deleteUser, assignUserToDoctor, getSystemLogs,
+        getAdminDashboard, getAllUsers, getAllDoctors, createUser, updateUser, deleteUser, assignUserToDoctor, getSystemLogs, getAssignments, deleteAssignment,
         sendMessage, getMessages, getConversations, sendTypingIndicator, markMessageDelivered, getChatLogs
     };
 }

@@ -282,6 +282,79 @@ def delete_user(user_id):
             'data': {}
         }), 500
 
+@admin_bp.route('/assignments', methods=['GET'])
+def get_assignments():
+    try:
+        if 'user_id' not in session or session.get('role') != 'admin':
+            return jsonify({
+                'status': 'error', 
+                'message': 'Not authorized',
+                'data': {}
+            }), 401
+        
+        conn = get_db_connection()
+        assignments = conn.execute('''
+            SELECT a.id, u.username as user_name, d.username as doctor_name, a.assigned_at as assigned_date
+            FROM assignments a
+            JOIN users u ON a.user_id = u.id
+            JOIN users d ON a.doctor_id = d.id
+            ORDER BY a.assigned_at DESC
+        ''').fetchall()
+        conn.close()
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'Assignments retrieved successfully',
+            'data': [dict(assignment) for assignment in assignments]
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e),
+            'data': {}
+        }), 500
+
+
+@admin_bp.route('/assignments/<int:assignment_id>', methods=['DELETE'])
+def delete_assignment(assignment_id):
+    try:
+        if 'user_id' not in session or session.get('role') != 'admin':
+            return jsonify({
+                'status': 'error', 
+                'message': 'Not authorized',
+                'data': {}
+            }), 401
+        
+        conn = get_db_connection()
+        
+        # Check if assignment exists
+        assignment = conn.execute('SELECT * FROM assignments WHERE id = ?', (assignment_id,)).fetchone()
+        if not assignment:
+            conn.close()
+            return jsonify({
+                'status': 'error', 
+                'message': 'Assignment not found',
+                'data': {}
+            }), 404
+        
+        # Remove the assignment
+        conn.execute('DELETE FROM assignments WHERE id = ?', (assignment_id,))
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'Assignment removed successfully',
+            'data': {}
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e),
+            'data': {}
+        }), 500
+
+
 @admin_bp.route('/assignments', methods=['POST'])
 def assign_user_to_doctor():
     try:

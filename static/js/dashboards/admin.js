@@ -235,7 +235,8 @@ class AdminDashboard {
             const usersContainer = document.getElementById('usersTableBody');
             showSkeletonText(usersContainer.parentElement, 3);
 
-            const users = await getAllUsers();
+            const usersResponse = await getAllUsers();
+            const users = usersResponse.data;
             
             if (!users || users.length === 0) {
                 usersContainer.innerHTML = `
@@ -284,7 +285,8 @@ class AdminDashboard {
             const doctorsContainer = document.getElementById('doctorsTableBody');
             showSkeletonText(doctorsContainer.parentElement, 3);
 
-            const doctors = await getAllDoctors();
+            const doctorsResponse = await getAllDoctors();
+            const doctors = doctorsResponse.data;
             
             if (!doctors || doctors.length === 0) {
                 doctorsContainer.innerHTML = `
@@ -332,8 +334,10 @@ class AdminDashboard {
     async loadAssignmentsTab() {
         try {
             // Load users and doctors for dropdowns
-            const users = await getAllUsers();
-            const doctors = await getAllDoctors();
+            const usersResponse = await getAllUsers();
+            const users = usersResponse.data;
+            const doctorsResponse = await getAllDoctors();
+            const doctors = doctorsResponse.data;
             
             // Populate user select
             const userSelect = document.getElementById('userSelect');
@@ -370,30 +374,11 @@ class AdminDashboard {
             const assignmentsContainer = document.getElementById('assignmentsTableBody');
             showSkeletonText(assignmentsContainer.parentElement, 2);
 
-            // In a real app, we'd have an API endpoint for assignments
-            // For now, we'll simulate this with a combination of users and doctors
-            const users = await getAllUsers();
-            const doctors = await getAllDoctors();
+            // Get real assignments from API
+            const assignmentsResponse = await getAssignments();
+            const assignments = assignmentsResponse.data;
             
-            // Mock assignments data - in real app this would come from an API
-            const assignments = [];
-            
-            // Simulate some assignments (in a real app, this would be from a dedicated assignments endpoint)
-            if (users.length > 0 && doctors.length > 0) {
-                // Create a mock assignment between first user and first doctor
-                const firstUser = users.find(u => u.role === 'user');
-                const firstDoctor = doctors[0];
-                
-                if (firstUser && firstDoctor) {
-                    assignments.push({
-                        user: firstUser.username,
-                        doctor: firstDoctor.username,
-                        assigned_date: new Date().toISOString().split('T')[0]
-                    });
-                }
-            }
-            
-            if (assignments.length === 0) {
+            if (!assignments || assignments.length === 0) {
                 assignmentsContainer.innerHTML = `
                     <tr>
                         <td colspan="4">No assignments found.</td>
@@ -407,11 +392,11 @@ class AdminDashboard {
             assignments.forEach(assignment => {
                 assignmentsHtml += `
                     <tr>
-                        <td>${assignment.user}</td>
-                        <td>${assignment.doctor}</td>
-                        <td>${assignment.assigned_date}</td>
+                        <td>${assignment.user_name}</td>
+                        <td>${assignment.doctor_name}</td>
+                        <td>${assignment.assigned_date || 'N/A'}</td>
                         <td class="table-actions">
-                            <button class="btn btn-sm btn-danger" onclick="removeAssignment('${assignment.user}', '${assignment.doctor}')">
+                            <button class="btn btn-sm btn-danger" onclick="removeAssignment(${assignment.id}, '${assignment.user_name}', '${assignment.doctor_name}')">
                                 Remove
                             </button>
                         </td>
@@ -433,7 +418,8 @@ class AdminDashboard {
             const logsContainer = document.getElementById('logsContainer');
             showSkeletonText(logsContainer, 5);
 
-            const logs = await getSystemLogs();
+            const logsResponse = await getSystemLogs();
+            const logs = logsResponse.data;
             
             if (!logs || !logs.logs || logs.logs.length === 0) {
                 logsContainer.innerHTML = `
@@ -528,8 +514,8 @@ class AdminDashboard {
             const assignmentData = Object.fromEntries(formData.entries());
             
             // Convert IDs to numbers
-            assignmentData.user_id = parseInt(assignmentData.userId);
-            assignmentData.doctor_id = parseInt(assignmentData.doctorId);
+            assignmentData.user_id = parseInt(assignmentData.userId || assignmentData.userSelect);
+            assignmentData.doctor_id = parseInt(assignmentData.doctorId || assignmentData.doctorSelect);
 
             // Assign user to doctor
             const result = await assignUserToDoctor(assignmentData);
@@ -564,7 +550,8 @@ class AdminDashboard {
 
             // In a real app, we'd have a search endpoint
             // For now, we'll just reload the users list
-            const users = await getAllUsers();
+            const usersResponse = await getAllUsers();
+            const users = usersResponse.data;
             
             // Filter users based on query
             const filteredUsers = query ? 
@@ -624,7 +611,8 @@ class AdminDashboard {
 
             // In a real app, we'd have a search endpoint
             // For now, we'll just reload the doctors list
-            const doctors = await getAllDoctors();
+            const doctorsResponse = await getAllDoctors();
+            const doctors = doctorsResponse.data;
             
             // Filter doctors based on query
             const filteredDoctors = query ? 
@@ -692,7 +680,8 @@ class AdminDashboard {
             const logsContainer = document.getElementById('logsContainer');
             showSkeletonText(logsContainer, 3);
 
-            const logs = await getSystemLogs();
+            const logsResponse = await getSystemLogs();
+            const logs = logsResponse.data;
             
             // Filter logs based on query
             const filteredLogs = query ? 
@@ -772,10 +761,22 @@ window.deleteUserById = async (userId, username) => {
     }
 };
 
-window.removeAssignment = (userName, doctorName) => {
+window.removeAssignment = async (assignmentId, userName, doctorName) => {
     if (confirm(`Are you sure you want to remove the assignment between ${userName} and ${doctorName}?`)) {
-        // In a real app, this would make an API call to remove the assignment
-        showInfo(`Assignment removal between ${userName} and ${doctorName} would occur here.`);
+        try {
+            // Make API call to remove the assignment
+            await deleteAssignment(assignmentId);
+            
+            showSuccess(`Assignment between ${userName} and ${doctorName} removed successfully!`);
+            
+            // Reload assignments
+            if (window.adminDashboard) {
+                await window.adminDashboard.loadCurrentAssignments();
+            }
+        } catch (error) {
+            console.error('Error removing assignment:', error);
+            showError('Failed to remove assignment. Please try again.');
+        }
     }
 };
 

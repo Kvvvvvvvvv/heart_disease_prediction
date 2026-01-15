@@ -209,7 +209,8 @@ class UserDashboard {
             showSuccess('Prediction completed successfully!');
 
             // Reload dashboard stats
-            this.userData = await getUserDashboard();
+            const updatedUserData = await getUserDashboard();
+            this.userData = updatedUserData.data;
             this.updateDashboardStats();
 
         } catch (error) {
@@ -473,8 +474,10 @@ class UserDashboard {
             
             messagesContainer.innerHTML = '';
 
+            const currentUserId = await getUserId(); // Get current user ID asynchronously
+            
             messages.forEach(message => {
-                const isOwnMessage = message.sender_id == getUserId(); // Using auth manager to get user ID
+                const isOwnMessage = message.sender_id == currentUserId;
                 const messageClass = isOwnMessage ? 'message-sent' : 'message-received';
                 
                 const messageElement = document.createElement('div');
@@ -497,9 +500,48 @@ class UserDashboard {
     }
 
     // Load chat content for chat tab
-    loadChatContent() {
-        // Content is handled by the chat panel functionality
-        // Just ensure the chat panel is available
+    async loadChatContent() {
+        try {
+            const chatContainer = document.getElementById('chatContent');
+            showSkeletonText(chatContainer, 3);
+            
+            // Get conversations
+            const conversationsResponse = await getConversations();
+            const conversations = conversationsResponse.data;
+            
+            if (!conversations || conversations.length === 0) {
+                chatContainer.innerHTML = `
+                    <div class="card">
+                        <div class="card-body">
+                            <p>No conversations yet. Click on "Chat Now" with your assigned doctor to start a conversation.</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let chatHtml = `<div class="card"><div class="card-body">`;
+            
+            conversations.forEach(conv => {
+                const lastMessageTime = new Date(conv.last_message_time).toLocaleDateString();
+                chatHtml += `
+                    <div class="conversation-item" style="padding: var(--spacing-md); border-bottom: 1px solid var(--border-color); cursor: pointer;" onclick="openChat(${conv.partner_id})">
+                        <div style="display: flex; justify-content: space-between;">
+                            <strong>${conv.partner_name}</strong>
+                            <small style="color: var(--text-secondary);">${lastMessageTime}</small>
+                        </div>
+                        <p style="margin: var(--spacing-sm) 0 0 0; color: var(--text-secondary);">${conv.last_message.substring(0, 50)}${conv.last_message.length > 50 ? '...' : ''}</p>
+                    </div>
+                `;
+            });
+            
+            chatHtml += `</div></div>`;
+            chatContainer.innerHTML = chatHtml;
+            
+        } catch (error) {
+            console.error('Error loading chat content:', error);
+            showError('Failed to load chat conversations.');
+        }
     }
 
     // Load profile content

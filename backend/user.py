@@ -260,10 +260,10 @@ def get_assigned_doctor():
             })
         else:
             return jsonify({
-                'status': 'error', 
+                'status': 'success', 
                 'message': 'No doctor assigned yet',
-                'data': {}
-            }), 404
+                'data': None
+            })
     except Exception as e:
         return jsonify({
             'status': 'error',
